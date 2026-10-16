@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>سجل الطلاب</title>
+<style>
+:root{--bg:#f3f0e8;--card:#fdfcf8;--ink:#1c2b24;--mut:#8a8f89;--g:#1d6b4e;--gl:#e6ede8;--bd:#e7e3d8;--r:#c0392b;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131a16;--card:#1b2420;--ink:#ecf0ed;--mut:#93a09a;--g:#2c8f6a;--gl:#25332c;--bd:#2b3731;--r:#e46a5b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#131a16;--card:#1b2420;--ink:#ecf0ed;--mut:#93a09a;--g:#2c8f6a;--gl:#25332c;--bd:#2b3731;--r:#e46a5b;color-scheme:dark}
+*{box-sizing:border-box;margin:0}html,body{background:var(--bg);color:var(--ink);font-family:"Cairo","Segoe UI",Tahoma,sans-serif}
+body{max-width:560px;margin:auto;padding:20px 16px 96px;min-height:100vh}
+h1{font-size:22px}h2{font-size:15px;margin:16px 0 8px}.m{color:var(--mut);font-size:12px}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}.ic{width:46px;height:46px;border-radius:14px;background:var(--g);color:#fff;display:grid;place-items:center;font-size:22px;border:0;cursor:pointer}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
+.hero{background:var(--g);color:#fff;border-radius:20px;padding:20px;margin-bottom:12px}.hero h1{font-size:24px;line-height:1.5;margin:10px 0 6px}.hero p{font-size:12px;opacity:.85}
+.pill{display:inline-block;background:rgba(255,255,255,.18);border-radius:10px;padding:4px 10px;font-size:11px}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.st .c{margin:0;padding:12px}.st b{display:block;font-size:22px;margin-top:6px}.st .on{background:var(--g);color:#fff;border-color:var(--g)}.st .on .m{color:#fff;opacity:.85}
+.row{display:flex;align-items:center;gap:12px;cursor:pointer}.row .t{flex:1}.row b{font-size:14px;display:block}.row .ic2{width:40px;height:40px;border-radius:12px;background:var(--gl);color:var(--g);display:grid;place-items:center;font-size:18px}
+.chip{display:inline-block;background:var(--gl);color:var(--g);border-radius:20px;padding:6px 12px;font-size:12px;margin:8px 0 0 6px}
+.btn{width:100%;background:var(--g);color:#fff;border:0;border-radius:14px;padding:14px;font:inherit;font-size:14px;cursor:pointer}.btn.s{width:auto;padding:10px 18px}.btn.o{background:var(--gl);color:var(--g)}.btn.d{background:transparent;color:var(--r);border:1px solid var(--r)}
+input{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--bd);border-radius:14px;padding:13px;font:inherit;font-size:14px;margin-top:6px}
+label{font-size:12px;font-weight:700}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.day{background:var(--gl);border:0;color:var(--ink);border-radius:12px;padding:10px 0;font:inherit;cursor:pointer;font-size:11px}.day b{display:block;font-size:17px}.day.on{background:var(--g);color:#fff}
+.nav{display:flex;justify-content:space-between;align-items:center;font-size:13px}.nav button{background:none;border:0;color:var(--ink);font-size:20px;cursor:pointer;padding:0 8px}
+.cnt{display:flex;text-align:center;margin:10px 0}.cnt div{flex:1;font-size:11px;color:var(--mut)}.cnt b{display:block;font-size:20px;color:var(--ink)}
+.stu{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.stu .nm{flex:1;min-width:120px;font-weight:700;font-size:14px;cursor:pointer}
+.pa{display:flex;gap:6px}.pa button{border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:10px;padding:8px 12px;font:inherit;font-size:12px;cursor:pointer}.pa .p.on{background:var(--g);color:#fff;border-color:var(--g)}.pa .a.on{background:var(--r);color:#fff;border-color:var(--r)}
+.sub{display:flex;gap:10px;width:100%;align-items:center;font-size:12px;color:var(--mut)}.sub input{width:70px;margin:0;padding:8px;text-align:center}.sub label{font-weight:400;display:flex;align-items:center;gap:4px}.sub input[type=checkbox]{width:18px;height:18px;padding:0}
+.emp{text-align:center;padding:24px 10px}.emp .ic2{margin:0 auto 10px;width:54px;height:54px;border-radius:50%;background:var(--gl);color:var(--g);display:grid;place-items:center;font-size:24px}.emp b{display:block;margin-bottom:4px}.emp .btn{width:auto;margin-top:12px}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabs button{background:none;border:0;color:var(--mut);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;flex:1}.tabs button span{font-size:20px}.tabs .on{color:var(--g);font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:9}.modal>div{background:var(--bg);width:100%;max-width:560px;margin:auto;border-radius:22px 22px 0 0;padding:18px;max-height:85vh;overflow:auto}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.bar{font-size:11px;text-align:center;padding:6px 10px;border-radius:10px;margin-bottom:12px;background:var(--card);border:1px solid currentColor}.bar.ok{color:var(--g)}.bar.sync{color:#b07a00}.bar.off{color:var(--r)}
+</style><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1d6b4e"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png"></head><body><div id="bar" class="bar"></div><div id="app"></div><div class="tabs" id="tabs"></div><div id="md"></div>
+<script>
+const DN=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+let S={students:[],att:{},qmax:{},exams:[]},tab='home',wk=0,sel=null,q='',addOpen=false;
+let U,pend={},deferR=false,unsub=null;const save=()=>{};
+const $=s=>document.getElementById(s),esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>{const z=new Date(d);return z.getFullYear()+'-'+String(z.getMonth()+1).padStart(2,'0')+'-'+String(z.getDate()).padStart(2,'0')};
+const nf=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const today=new Date();
+function monday(off){const d=new Date(today);const w=d.getDay();let back=w===0?-6:1-w;if(w===5||w===6||w===0)back+=7;d.setDate(d.getDate()+back+off*7);d.setHours(12);return d}
+function weekDays(){const m=monday(wk);return [0,1,2,3].map(i=>{const d=new Date(m);d.setDate(m.getDate()+i);return d})}
+function selDate(){const ds=weekDays().map(iso);if(!sel||!ds.includes(sel)){const t=iso(today);sel=ds.includes(t)?t:ds[0]}return sel}
+const rec=(d,id)=>(S.att[d]||{})[id]||null;
+function setRec(d,id,patch){S.att[d]=S.att[d]||{};S.att[d][id]=Object.assign(S.att[d][id]||{},patch);FB.set('att/'+d,{[id]:S.att[d][id]});render()}
+function go(t){tab=t;addOpen=false;q='';render();scrollTo(0,0)}
+function hd(title,sub,btn){return `<div class="hd"><div style="flex:1"><h1>${title}</h1><div class="m">${sub}</div></div>${btn||''}</div>`}
+function empty(t,s,b){return `<div class="c emp"><div class="ic2">👥</div><b>${t}</b><div class="m">${s}</div>${b?`<button class="btn s" onclick="openAdd()">إضافة طالب</button>`:''}</div>`}
+function openAdd(){tab='students';addOpen=true;render()}
+function counts(d){let p=0,a=0;S.students.forEach(s=>{const r=rec(d,s.id);if(r&&r.s==='p')p++;else if(r&&r.s==='a')a++});return{p,a,n:S.students.length-p-a}}
+function sessions(id){let att=0,abs=0;const keys=new Set(Object.keys(S.att));const seen=new Set();
+ keys.forEach(k=>{const d=new Date(k+'T12:00:00');const w=d.getDay();if(w<1||w>4)return;const base=new Date(d);base.setDate(d.getDate()-((w-1)%2));const key=iso(base)+(w<3?'A':'B');if(seen.has(key))return;seen.add(key);
+  const d2=new Date(base);d2.setDate(base.getDate()+1);const rs=[rec(iso(base),id),rec(iso(d2),id)].filter(Boolean);if(!rs.length)return;
+  if(rs.some(r=>r.s==='p'))att++;else if(rs.some(r=>r.s==='a'))abs++;});return{att,abs}}
+function home(){const c=counts(iso(today));
+ return `<div class="hd"><div class="ic">📖</div><div><h1>سجل الطلاب</h1><div class="m">${today.toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'})}</div></div><button class="btn o s" style="margin-inline-start:auto" onclick="FB.out()">خروج</button></div>
+ <div class="hero"><span class="pill">متابعة يومية</span><h1>كل تفاصيل طلابك<br>في مكان واحد</h1><p>حضور، كويز، واجب ودرجات امتحانات — وسجل كامل لكل طالب.</p></div>
+ <div class="st"><div class="c"><span class="m">إجمالي الطلاب</span><b>${nf(S.students.length)}</b></div><div class="c on"><span class="m">حضروا اليوم</span><b>${nf(c.p)}</b></div><div class="c"><span class="m">غياب اليوم</span><b>${nf(c.a)}</b></div></div>
+ <h2>ابدأ بسرعة</h2>
+ <div class="c row" onclick="go('att')"><div class="ic2">✓</div><div class="t"><b>تسجيل حضور وكويز</b><span class="m">سجل الحضور والواجب ودرجة كويز اليوم</span></div>‹</div>
+ <div class="c row" onclick="go('exams')"><div class="ic2">🏅</div><div class="t"><b>إضافة درجة امتحان</b><span class="m">اختر امتحانًا وطالبًا وسجل الدرجة</span></div>‹</div>
+ <div class="c row" onclick="go('students')"><div class="ic2">🔍</div><div class="t"><b>البحث عن طالب</b><span class="m">افتح سجل الحضور والكويز والدرجات</span></div>‹</div>
+ <div class="c"><b>نظام الحصص</b><div class="m">حصتان أسبوعيًا لكل طالب</div><span class="chip">الإثنين ← الثلاثاء</span><span class="chip">الأربعاء ← الخميس</span><div class="m" style="margin-top:10px">تُحسب غياب حصة واحدة إذا غاب الطالب في اليوم الأساسي ويوم التعويض معًا.</div></div>
+ ${S.students.length?'':`<div class="c"><b>ابدأ بإضافة أول طالب</b><div class="m" style="margin:4px 0 12px">أضف الاسم ورقم ولي الأمر، ثم سجل الحضور والدرجات.</div><button class="btn" onclick="openAdd()">إضافة طالب</button></div>`}`}
+function students(){const list=S.students.filter(s=>(s.name+s.phone).includes(q));
+ return hd('الطلاب',`${nf(S.students.length)} طالب مسجل`,`<button class="ic" onclick="addOpen=!addOpen;render()">${addOpen?'×':'+'}</button>`)+
+ (addOpen?`<div class="c"><b>طالب جديد</b><div style="margin-top:8px"><label>اسم الطالب</label><input id="sn" placeholder="مثال: أحمد محمد"><div style="height:10px"></div><label>رقم ولي الأمر</label><input id="sp" inputmode="tel" placeholder="01xxxxxxxxx"></div><div style="height:12px"></div><button class="btn" onclick="addStu()">حفظ الطالب</button></div>`:'')+
+ `<input id="sq" placeholder="ابحث بالاسم أو رقم ولي الأمر" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">`+
+ (!S.students.length?empty('قائمة الطلاب فارغة','أضف أول طالب لبدء تسجيل الحضور والدرجات.',1):list.map(s=>{const x=sessions(s.id);return `<div class="c row" onclick="showStu('${s.id}')"><div class="ic2">${esc(s.name[0]||'?')}</div><div class="t"><b>${esc(s.name)}</b><span class="m">${esc(s.phone||'بدون رقم')} — حضر ${nf(x.att)} · غاب ${nf(x.abs)}</span></div>‹</div>`}).join('')||'<div class="m" style="text-align:center">لا توجد نتائج</div>')}
+function addStu(){const n=$('sn').value.trim();if(!n){$('sn').focus();return}const st={id:'s'+Date.now(),name:n,phone:$('sp').value.trim()};S.students.push(st);FB.set('students/'+st.id,st);addOpen=false;render()}
+function att(){const ds=weekDays(),d=selDate(),idx=ds.map(iso).indexOf(d),pair=idx<2?'الإثنين والثلاثاء':'الأربعاء والخميس',c=counts(d),qm=S.qmax[d]??'';
+ const list=S.students.filter(s=>s.name.includes(q));
+ return hd('الحضور والكويز','سجل كل يوم دراسي على حدة')+
+ `<div class="c"><div class="nav"><button onclick="wk--;sel=null;render()">›</button><b>${wk===0?'هذا الأسبوع':wk===1?'الأسبوع القادم':wk<0?'أسبوع سابق':'بعد أسبوعين+'}</b><button onclick="wk++;sel=null;render()">‹</button></div>
+ <div class="days">${ds.map(x=>`<button class="day ${iso(x)===d?'on':''}" onclick="sel='${iso(x)}';render()">${DN[x.getDay()]}<b>${nf(x.getDate())}</b></button>`).join('')}</div></div>
+ <div class="c"><b style="font-size:13px">حصة ${pair}</b><div class="m">إذا غاب الطالب في اليومين، تُحسب حصة غياب واحدة فقط.</div></div>
+ <div class="cnt"><div><b style="color:var(--g)">${nf(c.p)}</b>حاضر</div><div><b style="color:var(--r)">${nf(c.a)}</b>غائب اليوم</div><div><b>${nf(c.n)}</b>غير مسجل</div></div>
+ <div class="c" style="display:flex;align-items:center;gap:10px"><input id="qm" type="number" inputmode="decimal" value="${qm}" style="width:80px;margin:0;text-align:center" onchange="S.qmax[sel]=this.value;FB.set('meta/qmax',{[sel]:this.value});render()"><div><b style="font-size:13px">الكويز من</b><div class="m">الدرجة الكاملة لهذا اليوم</div></div></div>
+ <div style="display:flex;justify-content:space-between"><h2>قائمة الطلاب</h2><span class="m" style="margin-top:18px">${nf(S.students.length)} طالب</span></div>
+ <input id="sq" placeholder="ابحث عن طالب لتسجيل حضوره" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">`+
+ (!S.students.length?empty('لا يوجد طلاب بعد','أضف الطلاب أولًا، ثم ارجع لتسجيل الحضور والكويز.',1):list.map(s=>{const r=rec(d,s.id)||{};return `<div class="c"><div class="stu"><div class="nm" onclick="showStu('${s.id}')">${esc(s.name)}</div><div class="pa"><button class="p ${r.s==='p'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'p'})">حاضر</button><button class="a ${r.s==='a'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'a'})">غائب</button></div>
+ ${r.s==='p'?`<div class="sub"><label><input type="checkbox" ${r.h?'checked':''} onchange="setRec('${d}','${s.id}',{h:this.checked})">الواجب</label><label>الكويز<input type="number" inputmode="decimal" value="${r.q??''}" onchange="setRec('${d}','${s.id}',{q:this.value})">${qm?'/ '+nf(qm):''}</label></div>`:''}</div></div>`}).join(''))}
+function exams(){const e0=S.exams;
+ let h=hd('درجات الامتحانات','أضف امتحانًا ثم سجل درجات الطلاب')+
+ `<div class="c"><b>امتحان جديد</b><div style="margin-top:8px"><label>اسم الامتحان</label><input id="en" placeholder="مثال: امتحان الفصل الأول"></div><div class="two"><div><label>الدرجة النهائية</label><input id="em" type="number" inputmode="decimal" placeholder="مثال: 50"></div><div><label>التاريخ</label><input id="ed" type="date" value="${iso(today)}"></div></div><button class="btn" onclick="addExam()">+ إنشاء الامتحان</button></div>`;
+ e0.slice().reverse().forEach(e=>{h+=`<div class="c"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>${esc(e.name)}</b><div class="m">${e.date} — من ${nf(e.max)}</div></div><button class="btn d s" style="padding:6px 12px" onclick="delExam('${e.id}')">حذف</button></div>`+
+ (S.students.length?S.students.map(s=>`<div class="kv"><span>${esc(s.name)}</span><input type="number" inputmode="decimal" value="${e.g[s.id]??''}" style="width:80px;margin:0;padding:8px;text-align:center" onchange="setGrade('${e.id}','${s.id}',this.value)"></div>`).join(''):'<div class="m" style="margin-top:8px">أضف الطلاب أولًا لإدخال درجاتهم.</div>')+'</div>'});
+ return h}
+function addExam(){const n=$('en').value.trim(),m=+$('em').value;if(!n||!m){alert('اكتب اسم الامتحان والدرجة النهائية');return}const ex={id:'e'+Date.now(),name:n,max:m,date:$('ed').value||iso(today),g:{}};S.exams.push(ex);FB.set('exams/'+ex.id,ex);render()}
+function setGrade(e,s,v){const x=S.exams.find(z=>z.id===e);if(v===''){delete x.g[s];FB.upd('exams/'+e,{['g.'+s]:FB.del()})}else{x.g[s]=+v;FB.set('exams/'+e,{g:{[s]:+v}})}}
+function delExam(id){if(confirm('حذف هذا الامتحان ودرجاته؟')){S.exams=S.exams.filter(e=>e.id!==id);FB.rm('exams/'+id);render()}}
+function showStu(id){const s=S.students.find(x=>x.id===id),x=sessions(id);let qs=[],hw=0,hn=0;
+ Object.keys(S.att).sort().forEach(d=>{const r=rec(d,id);if(r&&r.s==='p'){hn++;if(r.h)hw++;if(r.q!==undefined&&r.q!==''&&S.qmax[d])qs.push(r.q/S.qmax[d])}});
+ const avg=qs.length?Math.round(qs.reduce((a,b)=>a+b,0)/qs.length*100)+'٪':'—';
+ $('md').innerHTML=`<div class="modal" onclick="if(event.target===this)closeM()"><div><div class="hd"><div style="flex:1"><h1>${esc(s.name)}</h1><div class="m">${esc(s.phone||'بدون رقم ولي أمر')}</div></div><button class="ic" onclick="closeM()">×</button></div>
+ <div class="kv"><span>حصص حضرها</span><b>${nf(x.att)}</b></div><div class="kv"><span>حصص غاب عنها</span><b style="color:var(--r)">${nf(x.abs)}</b></div><div class="kv"><span>الواجب (مُسلَّم / أيام الحضور)</span><b>${nf(hw)} / ${nf(hn)}</b></div><div class="kv"><span>متوسط الكويز</span><b>${nf(avg)}</b></div>
+ <h2>الامتحانات</h2>${S.exams.filter(e=>e.g[id]!==undefined).map(e=>`<div class="kv"><span>${esc(e.name)}</span><b>${nf(e.g[id])} / ${nf(e.max)}</b></div>`).join('')||'<div class="m">لا توجد درجات بعد</div>'}
+ <div style="height:16px"></div><button class="btn d" onclick="delStu('${id}')">حذف الطالب</button></div></div>`}
+function closeM(){$('md').innerHTML=''}
+function delStu(id){if(!confirm('حذف الطالب وكل سجلاته؟'))return;FB.rm('students/'+id);Object.keys(S.att).forEach(d=>FB.upd('att/'+d,{[id]:FB.del()}));S.exams.forEach(e=>FB.upd('exams/'+e.id,{['g.'+id]:FB.del()}));S.students=S.students.filter(s=>s.id!==id);Object.values(S.att).forEach(o=>delete o[id]);S.exams.forEach(e=>delete e.g[id]);closeM();render()}
+function render(keep){const f=document.activeElement&&document.activeElement.id==='sq';if(!U){$('tabs').style.display='none';$('bar').style.display='none';$('app').innerHTML=U===undefined?'<div class="emp m">جارٍ التحميل…</div>':loginView();return}$('tabs').style.display='';$('bar').style.display='';bar();
+ $('app').innerHTML=({home,students,att,exams}[tab==='att'?'att':tab])();
+ $('tabs').innerHTML=[['home','الرئيسية','⌂'],['students','الطلاب','👥'],['att','الحضور','☑'],['exams','الامتحانات','🏅']].map(t=>`<button class="${tab===t[0]?'on':''}" onclick="go('${t[0]}')"><span>${t[2]}</span>${t[1]}</button>`).join('');
+ if(keep&&f){const i=$('sq');i.focus();i.setSelectionRange(q.length,q.length)}}
+const bar=()=>{const on=navigator.onLine,p=Object.values(pend).some(Boolean),b=$('bar');b.className='bar '+(!on?'off':p?'sync':'ok');b.textContent=!on?'غير متصل — سجّلي عادي والبيانات هتتحفظ على الجهاز وتترفع لما النت يرجع':p?'جارٍ المزامنة مع السحابة…':'متصل — البيانات محفوظة على السحابة'};
+addEventListener('online',bar);addEventListener('offline',bar);
+function refresh(){const a=document.activeElement;if(a&&a.matches&&a.matches('input')&&a.id!=='sq'){deferR=true;return}render(a&&a.id==='sq')}
+addEventListener('focusout',()=>{if(deferR){deferR=false;setTimeout(()=>{const a=document.activeElement;if(!(a&&a.matches&&a.matches('input')))render()},400)}});
+function loginView(){return `<div class="hero" style="margin-top:20px"><span class="pill">حساب آمن</span><h1>سجل الطلاب</h1><p>سجّلي دخولك علشان بياناتك تتحفظ على السحابة وتفتح من أي جهاز.</p></div><div class="c"><label>الإيميل</label><input id="le" type="email" autocomplete="email" dir="ltr"><div style="height:10px"></div><label>كلمة السر</label><input id="lp" type="password" autocomplete="current-password" dir="ltr"><div id="lerr" class="m" style="color:var(--r);margin:8px 0;min-height:16px"></div><button class="btn" onclick="auth(0)">تسجيل الدخول</button><div style="height:8px"></div><button class="btn o" onclick="auth(1)">إنشاء حساب جديد</button></div>`}
+async function auth(n){const e=$('le').value.trim(),p=$('lp').value;$('lerr').textContent='';try{await(n?FB.up(e,p):FB.in(e,p))}catch(x){const m={'auth/invalid-credential':'الإيميل أو كلمة السر غلط','auth/email-already-in-use':'الإيميل ده مسجل قبل كده','auth/weak-password':'كلمة السر لازم ٦ حروف على الأقل','auth/invalid-email':'الإيميل غير صحيح','auth/network-request-failed':'محتاج نت في أول تسجيل دخول'};$('lerr').textContent=m[x.code]||'حصل خطأ: '+x.code}}
+function apply(k,docs){if(k==='students')S.students=docs;else if(k==='exams')S.exams=docs.map(d=>({...d,g:d.g||{}}));else if(k==='att'){S.att={};docs.forEach(d=>{const{id,...r}=d;S.att[id]=r})}else if(k==='meta'){const m=docs.find(d=>d.id==='qmax')||{};const{id,...r}=m;S.qmax=r}}
+addEventListener('fb',()=>FB.user(u=>{if(unsub){unsub();unsub=null}S={students:[],att:{},qmax:{},exams:[]};pend={};U=u;if(u)unsub=FB.sub((k,docs,p,ch)=>{pend[k]=p;bar();if(ch){apply(k,docs);refresh()}});render()}));
+setTimeout(()=>{if(U===undefined)$('app').innerHTML+='<div class="m" style="text-align:center">لو الصفحة فضلت كده: راجعي ملف firebase-config.js واتصالك بالنت أول مرة.</div>'},6000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+render();
+</script><script type="module" src="firebase.js"></script></body></html>
