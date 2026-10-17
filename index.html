@@ -56,11 +56,16 @@ function go(t){tab=t;exOpen=null;addOpen=false;q='';render();scrollTo(0,0)}
 function hd(title,sub,btn){return `<div class="hd"><div style="flex:1"><h1>${title}</h1><div class="m">${sub}</div></div>${btn||''}</div>`}
 function empty(t,s,b){return `<div class="c emp"><div class="ic2">👥</div><b>${t}</b><div class="m">${s}</div>${b?`<button class="btn s" onclick="openAdd()">إضافة طالب</button>`:''}</div>`}
 function openAdd(){tab='students';addOpen=true;render()}
-function counts(d,f){let p=0,a=0;const L=f?S.students.filter(gfOK):S.students;L.forEach(s=>{const r=rec(d,s.id);if(r&&r.s==='p')p++;else if(r&&r.s==='a')a++});return{p,a,n:L.length-p-a}}
-function sessions(id){let att=0,abs=0;const keys=new Set(Object.keys(S.att));const seen=new Set();
- keys.forEach(k=>{const d=new Date(k+'T12:00:00');const w=d.getDay();if(w<1||w>4)return;const base=new Date(d);base.setDate(d.getDate()-((w-1)%2));const key=iso(base)+(w<3?'A':'B');if(seen.has(key))return;seen.add(key);
-  const d2=new Date(base);d2.setDate(base.getDate()+1);const rs=[rec(iso(base),id),rec(iso(d2),id)].filter(Boolean);if(!rs.length)return;
-  if(rs.some(r=>r.s==='p'))att++;else if(rs.some(r=>r.s==='a'))abs++;});return{att,abs}}
+function dayInfo(d){const w=new Date(d+'T12:00:00').getDay();const sec=w===2||w===4;return{sec,base:sec?iso(new Date(new Date(d+'T12:00:00').getTime()-864e5)):d}}
+const cre=s=>{const t=+String(s.id).slice(1);return t?iso(new Date(t)):'0000'};
+function visible(d){const i=dayInfo(d);return i.sec?S.students.filter(s=>{const r=rec(i.base,s.id);return !(r&&r.s==='p')}):S.students}
+function effS(d,s){const r=rec(d,s.id);if(r&&r.s)return r.s;return dayInfo(d).sec&&d<iso(today)&&cre(s)<=d?'a':''}
+function counts(d,f){let p=0,a=0,L=visible(d);if(f)L=L.filter(gfOK);L.forEach(s=>{const e=effS(d,s);if(e==='p')p++;else if(e==='a')a++});return{p,a,n:L.length-p-a}}
+function sessions(id){let att=0,abs=0;const st=S.students.find(z=>z.id===id),c0=st?cre(st):'0000',seen=new Set();
+ Object.keys(S.att).forEach(k=>{if(!Object.keys(S.att[k]).length)return;const d=new Date(k+'T12:00:00'),w=d.getDay();if(w<1||w>4)return;const base=new Date(d);base.setDate(d.getDate()-((w-1)%2));const key=iso(base)+(w<3?'A':'B');if(seen.has(key))return;seen.add(key);
+  const d2=new Date(base);d2.setDate(base.getDate()+1);const b1=iso(base),b2=iso(d2);
+  if([rec(b1,id),rec(b2,id)].some(r=>r&&r.s==='p')){att++;return}
+  if(b2<iso(today)&&c0<=b2)abs++});return{att,abs}}
 function home(){const c=counts(iso(today));
  return `<div class="hd"><div class="ic">📖</div><div><h1>سجل الطلاب</h1><div class="m">${today.toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'})}</div></div><button class="btn o s" style="margin-inline-start:auto" onclick="FB.out()">خروج</button></div>
  <div class="hero"><span class="pill">متابعة يومية</span><h1>كل تفاصيل طلابك<br>في مكان واحد</h1><p>حضور، كويز، واجب ودرجات امتحانات — وسجل كامل لكل طالب.</p></div>
@@ -78,17 +83,17 @@ function students(){const list=sorted().filter(s=>(s.name+(s.phone||'')+(s.group
  (!S.students.length?empty('قائمة الطلاب فارغة','أضف أول طالب لبدء تسجيل الحضور والدرجات.',1):list.map(s=>{const x=sessions(s.id);return `<div class="c row" onclick="showStu('${s.id}')"><div class="ic2">${esc(s.name[0]||'?')}</div><div class="t"><b>${esc(s.name)}${gchip(s)}</b><span class="m">${esc(s.phone||'بدون رقم')} — حضر ${nf(x.att)} · غاب ${nf(x.abs)}</span></div>‹</div>`}).join('')||'<div class="m" style="text-align:center">لا توجد نتائج</div>')}
 function addStu(){const n=$('sn').value.trim();if(!n){$('sn').focus();return}const st={id:'s'+Date.now(),name:n,phone:$('sp').value.trim(),group:$('sg').value.trim()};S.students.push(st);FB.set('students/'+st.id,st);addOpen=false;render()}
 function att(){const ds=weekDays(),d=selDate(),idx=ds.map(iso).indexOf(d),pair=idx<2?'الإثنين والثلاثاء':'الأربعاء والخميس',c=counts(d,1),qm=S.qmax[d]??'';
- const list=sorted().filter(s=>(s.name+(s.group||'')).includes(q)&&gfOK(s));
+ const vis=new Set(visible(d).map(s=>s.id)),list=sorted().filter(s=>vis.has(s.id)&&(s.name+(s.group||'')).includes(q)&&gfOK(s));
  return hd('الحضور والكويز','سجل كل يوم دراسي على حدة')+
  `<div class="c"><div class="nav"><button onclick="wk--;sel=null;render()">›</button><b>${wk===0?'هذا الأسبوع':wk===1?'الأسبوع القادم':wk<0?'أسبوع سابق':'بعد أسبوعين+'}</b><button onclick="wk++;sel=null;render()">‹</button></div>
  <div class="days">${ds.map(x=>`<button class="day ${iso(x)===d?'on':''}" onclick="sel='${iso(x)}';render()">${DN[x.getDay()]}<b>${nf(x.getDate())}</b></button>`).join('')}</div></div>
- <div class="c"><b style="font-size:13px">حصة ${pair}</b><div class="m">إذا غاب الطالب في اليومين، تُحسب حصة غياب واحدة فقط.</div></div>
+ <div class="c"><b style="font-size:13px">حصة ${pair}</b><div class="m">${dayInfo(d).sec?`هنا بتظهر أسماء اللي ماحضروش ${DN[new Date(d+'T12:00:00').getDay()-1]} بس (${nf(vis.size)} من ${nf(S.students.length)}). واللي ميتسجلش حضوره في اليومين بيتحسب غياب تلقائي.`:`اللي هتسجّلي حضوره النهاردة هيتشال اسمه من يوم ${DN[new Date(d+'T12:00:00').getDay()+1]}. واللي ميحضرش في اليومين بيتحسب غياب.`}</div></div>
  <div class="cnt"><div><b style="color:var(--g)">${nf(c.p)}</b>حاضر</div><div><b style="color:var(--r)">${nf(c.a)}</b>غائب اليوم</div><div><b>${nf(c.n)}</b>غير مسجل</div></div>
  <div class="c" style="display:flex;align-items:center;gap:10px"><input id="qm" type="number" inputmode="decimal" value="${qm}" style="width:80px;margin:0;text-align:center" onchange="S.qmax[sel]=this.value;FB.set('meta/qmax',{[sel]:this.value});render()"><div><b style="font-size:13px">الكويز من</b><div class="m">الدرجة الكاملة لهذا اليوم</div></div><button class="fc on" style="margin:0;margin-inline-start:auto" onclick="showRank()">🏆 ترتيب</button></div>
  <div style="display:flex;justify-content:space-between"><h2>قائمة الطلاب</h2><span class="m" style="margin-top:18px">${nf(S.students.length)} طالب</span></div>
  <input id="sq" placeholder="ابحث عن طالب لتسجيل حضوره" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">${gbar()}`+
- (!S.students.length?empty('لا يوجد طلاب بعد','أضف الطلاب أولًا، ثم ارجع لتسجيل الحضور والكويز.',1):list.map(s=>{const r=rec(d,s.id)||{};return `<div class="c"><div class="stu"><div class="nm" onclick="showStu('${s.id}')">${esc(s.name)}${gchip(s)}</div><div class="pa"><button class="p ${r.s==='p'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'p'})">حاضر</button><button class="a ${r.s==='a'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'a'})">غائب</button></div>
- ${r.s?subRow(d,s.id,r,qm):''}</div></div>`}).join(''))}
+ (!S.students.length?empty('لا يوجد طلاب بعد','أضف الطلاب أولًا، ثم ارجع لتسجيل الحضور والكويز.',1):list.map(s=>{const r=rec(d,s.id)||{},e=effS(d,s);return `<div class="c"><div class="stu"><div class="nm" onclick="showStu('${s.id}')">${esc(s.name)}${gchip(s)}</div><div class="pa"><button class="p ${e==='p'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'p'})">حاضر</button><button class="a ${e==='a'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'a'})">غائب</button></div>
+ ${r.s?subRow(d,s.id,r,qm):''}${!r.s&&e==='a'?'<div class="m" style="width:100%">غياب تلقائي: لم يُسجَّل حضوره في اليومين</div>':''}</div></div>`}).join('')||'<div class="m" style="text-align:center">لا يوجد طلاب هنا</div>')}
 function exams(){if(exOpen)return examView();
  const names=[...new Set(S.exams.map(x=>x.name))];
  let h=hd('درجات الامتحانات','أضف امتحانًا ثم ادخل عليه لتسجيل الدرجات')+
