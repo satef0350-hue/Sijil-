@@ -32,7 +32,11 @@ label{font-size:12px;font-weight:700}.two{display:grid;grid-template-columns:1fr
 <script>
 const DN=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
 let S={students:[],att:{},qmax:{},exams:[]},tab='home',wk=0,sel=null,q='',addOpen=false;
-let U,pend={},deferR=false,unsub=null;const save=()=>{};let gf='',openId=null;
+let U,pend={},deferR=false,unsub=null;const save=()=>{};let gf='',openId=null,exOpen=null,rank=false;
+const gname=s=>s.group||'بدون مجموعة';
+const medal=r=>r==null?'—':r===1?'🥇':r===2?'🥈':r===3?'🥉':nf(r);
+function byGroup(list){const m={};list.forEach(i=>{(m[gname(i.s)]=m[gname(i.s)]||[]).push(i)});return Object.keys(m).sort((a,b)=>a.localeCompare(b,'ar')).map(g=>[g,m[g]])}
+function ranked(items){const a=items.slice().sort((x,y)=>(y.v??-1)-(x.v??-1)||x.s.name.localeCompare(y.s.name,'ar'));let r=0,prev;a.forEach((it,i)=>{if(it.v==null){it.r=null;return}if(it.v!==prev){r=i+1;prev=it.v}it.r=r});return a}
 const groups=()=>[...new Set(S.students.map(s=>s.group).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
 const sorted=()=>S.students.slice().sort((a,b)=>(a.group||'').localeCompare(b.group||'','ar')||a.name.localeCompare(b.name,'ar'));
 const gfOK=s=>!gf||s.group===gf;
@@ -48,7 +52,7 @@ function weekDays(){const m=monday(wk);return [0,1,2,3].map(i=>{const d=new Date
 function selDate(){const ds=weekDays().map(iso);if(!sel||!ds.includes(sel)){const t=iso(today);sel=ds.includes(t)?t:ds[0]}return sel}
 const rec=(d,id)=>(S.att[d]||{})[id]||null;
 function setRec(d,id,patch){S.att[d]=S.att[d]||{};S.att[d][id]=Object.assign(S.att[d][id]||{},patch);FB.set('att/'+d,{[id]:S.att[d][id]});render()}
-function go(t){tab=t;addOpen=false;q='';render();scrollTo(0,0)}
+function go(t){tab=t;exOpen=null;addOpen=false;q='';render();scrollTo(0,0)}
 function hd(title,sub,btn){return `<div class="hd"><div style="flex:1"><h1>${title}</h1><div class="m">${sub}</div></div>${btn||''}</div>`}
 function empty(t,s,b){return `<div class="c emp"><div class="ic2">👥</div><b>${t}</b><div class="m">${s}</div>${b?`<button class="btn s" onclick="openAdd()">إضافة طالب</button>`:''}</div>`}
 function openAdd(){tab='students';addOpen=true;render()}
@@ -80,20 +84,33 @@ function att(){const ds=weekDays(),d=selDate(),idx=ds.map(iso).indexOf(d),pair=i
  <div class="days">${ds.map(x=>`<button class="day ${iso(x)===d?'on':''}" onclick="sel='${iso(x)}';render()">${DN[x.getDay()]}<b>${nf(x.getDate())}</b></button>`).join('')}</div></div>
  <div class="c"><b style="font-size:13px">حصة ${pair}</b><div class="m">إذا غاب الطالب في اليومين، تُحسب حصة غياب واحدة فقط.</div></div>
  <div class="cnt"><div><b style="color:var(--g)">${nf(c.p)}</b>حاضر</div><div><b style="color:var(--r)">${nf(c.a)}</b>غائب اليوم</div><div><b>${nf(c.n)}</b>غير مسجل</div></div>
- <div class="c" style="display:flex;align-items:center;gap:10px"><input id="qm" type="number" inputmode="decimal" value="${qm}" style="width:80px;margin:0;text-align:center" onchange="S.qmax[sel]=this.value;FB.set('meta/qmax',{[sel]:this.value});render()"><div><b style="font-size:13px">الكويز من</b><div class="m">الدرجة الكاملة لهذا اليوم</div></div></div>
+ <div class="c" style="display:flex;align-items:center;gap:10px"><input id="qm" type="number" inputmode="decimal" value="${qm}" style="width:80px;margin:0;text-align:center" onchange="S.qmax[sel]=this.value;FB.set('meta/qmax',{[sel]:this.value});render()"><div><b style="font-size:13px">الكويز من</b><div class="m">الدرجة الكاملة لهذا اليوم</div></div><button class="fc on" style="margin:0;margin-inline-start:auto" onclick="showRank()">🏆 ترتيب</button></div>
  <div style="display:flex;justify-content:space-between"><h2>قائمة الطلاب</h2><span class="m" style="margin-top:18px">${nf(S.students.length)} طالب</span></div>
  <input id="sq" placeholder="ابحث عن طالب لتسجيل حضوره" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">${gbar()}`+
  (!S.students.length?empty('لا يوجد طلاب بعد','أضف الطلاب أولًا، ثم ارجع لتسجيل الحضور والكويز.',1):list.map(s=>{const r=rec(d,s.id)||{};return `<div class="c"><div class="stu"><div class="nm" onclick="showStu('${s.id}')">${esc(s.name)}${gchip(s)}</div><div class="pa"><button class="p ${r.s==='p'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'p'})">حاضر</button><button class="a ${r.s==='a'?'on':''}" onclick="setRec('${d}','${s.id}',{s:'a'})">غائب</button></div>
  ${r.s?subRow(d,s.id,r,qm):''}</div></div>`}).join(''))}
-function exams(){const e0=S.exams;
- let h=hd('درجات الامتحانات','أضف امتحانًا ثم سجل درجات الطلاب')+
- `<div class="c"><b>امتحان جديد</b><div style="margin-top:8px"><label>اسم الامتحان</label><input id="en" placeholder="مثال: امتحان الفصل الأول"></div><div class="two"><div><label>الدرجة النهائية</label><input id="em" type="number" inputmode="decimal" placeholder="مثال: 50"></div><div><label>التاريخ</label><input id="ed" type="date" value="${iso(today)}"></div></div><button class="btn" onclick="addExam()">+ إنشاء الامتحان</button></div>`;
- if(e0.length&&S.students.length)h+=`<input id="sq" placeholder="ابحث عن طالب بالاسم أو المجموعة لتسجيل درجته" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">${gbar()}`;e0.slice().reverse().forEach(e=>{h+=`<div class="c"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>${esc(e.name)}</b><div class="m">${e.date} — من ${nf(e.max)}</div></div><button class="btn d s" style="padding:6px 12px" onclick="delExam('${e.id}')">حذف</button></div>`+
- (S.students.length?sorted().filter(s=>(s.name+(s.group||'')).includes(q)&&gfOK(s)).map(s=>`<div class="kv"><span>${esc(s.name)}${gchip(s)}</span><input type="number" inputmode="decimal" value="${e.g[s.id]??''}" style="width:80px;margin:0;padding:8px;text-align:center" onchange="setGrade('${e.id}','${s.id}',this.value)"></div>`).join('')||'<div class="m" style="margin-top:8px">لا توجد نتائج</div>':'<div class="m" style="margin-top:8px">أضف الطلاب أولًا لإدخال درجاتهم.</div>')+'</div>'});
+function exams(){if(exOpen)return examView();
+ const names=[...new Set(S.exams.map(x=>x.name))];
+ let h=hd('درجات الامتحانات','أضف امتحانًا ثم ادخل عليه لتسجيل الدرجات')+
+ `<div class="c"><b>امتحان جديد</b><div style="margin-top:8px"><label>اسم الامتحان</label><input id="en" list="enl" placeholder="مثال: امتحان الفصل الأول"><datalist id="enl">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div><div class="two"><div><label>الدرجة النهائية</label><input id="em" type="number" inputmode="decimal" placeholder="مثال: 50"></div><div><label>التاريخ</label><input id="ed" type="date" value="${iso(today)}"></div></div><button class="btn" onclick="addExam()">+ إنشاء الامتحان</button></div>`;
+ const L=S.exams.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ if(L.length)h+='<h2>الامتحانات</h2>';
+ h+=L.map(e=>{const v=Object.values(e.g||{});const avg=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:null;return `<div class="c row" onclick="exOpen='${e.id}';q='';render();scrollTo(0,0)"><div class="ic2">🏅</div><div class="t"><b>${esc(e.name)}</b><span class="m">${e.date} — من ${nf(e.max)} · سُجّل ${nf(v.length)}/${nf(S.students.length)}${avg!==null?' · المتوسط '+nf(avg):''}</span></div>‹</div>`}).join('')||'<div class="m" style="text-align:center;margin-top:10px">لا توجد امتحانات بعد</div>';
  return h}
-function addExam(){const n=$('en').value.trim(),m=+$('em').value;if(!n||!m){alert('اكتب اسم الامتحان والدرجة النهائية');return}const ex={id:'e'+Date.now(),name:n,max:m,date:$('ed').value||iso(today),g:{}};S.exams.push(ex);FB.set('exams/'+ex.id,ex);render()}
+function examView(){const e=S.exams.find(z=>z.id===exOpen);if(!e){exOpen=null;return exams()}
+ const v=Object.values(e.g||{}),avg=v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10:'—',hi=v.length?Math.max(...v):'—';
+ const L=sorted().filter(s=>(s.name+(s.group||'')).includes(q)&&gfOK(s));
+ const row=(s,r)=>`<div class="kv"><span>${r!==undefined?`<b style="display:inline-block;min-width:30px">${medal(r)}</b>`:''}${esc(s.name)}${r!==undefined?'':gchip(s)}</span><input type="number" inputmode="decimal" value="${e.g[s.id]??''}" style="width:80px;margin:0;padding:8px;text-align:center" onchange="setGrade('${e.id}','${s.id}',this.value);${rank?'render()':''}"></div>`;
+ let body;
+ if(rank)body=byGroup(L.map(s=>({s,v:e.g[s.id]===undefined?null:e.g[s.id]}))).map(([g,items])=>`<h2>${esc(g)}</h2><div class="c">${ranked(items).map(i=>row(i.s,i.r)).join('')}</div>`).join('');
+ else body=`<div class="c">${L.map(s=>row(s)).join('')}</div>`;
+ return `<div class="hd"><button class="ic" onclick="exOpen=null;q='';render()">›</button><div style="flex:1"><h1>${esc(e.name)}</h1><div class="m">${e.date} — من ${nf(e.max)}</div></div><button class="ic" style="opacity:${rank?1:.5}" onclick="rank=!rank;render()">🏆</button><button class="ic" style="background:var(--r)" onclick="delExam('${e.id}')">🗑</button></div>
+ <div class="cnt"><div><b>${nf(v.length)}/${nf(S.students.length)}</b>سُجّلت</div><div><b>${nf(avg)}</b>المتوسط</div><div><b>${nf(hi)}</b>الأعلى</div></div>
+ ${rank?'<div class="m" style="margin-bottom:8px">🏆 الترتيب من الأعلى درجة، داخل كل مجموعة على حدة (دوسي 🏆 للرجوع للترتيب العادي)</div>':''}
+ ${S.students.length?`<input id="sq" placeholder="ابحث عن طالب بالاسم أو المجموعة" value="${esc(q)}" oninput="q=this.value;render(true)" style="margin:0 0 12px">${gbar()}${body||'<div class="m" style="text-align:center">لا توجد نتائج</div>'}`:empty('لا يوجد طلاب بعد','أضف الطلاب أولًا لتسجيل درجاتهم.',1)}`}
+function addExam(){const n=$('en').value.trim(),m=+$('em').value;if(!n||!m){alert('اكتب اسم الامتحان والدرجة النهائية');return}const ex={id:'e'+Date.now(),name:n,max:m,date:$('ed').value||iso(today),g:{}};S.exams.push(ex);FB.set('exams/'+ex.id,ex);exOpen=ex.id;q='';render();scrollTo(0,0)}
 function setGrade(e,s,v){const x=S.exams.find(z=>z.id===e);if(v===''){delete x.g[s];FB.upd('exams/'+e,{['g.'+s]:FB.del()})}else{x.g[s]=+v;FB.set('exams/'+e,{g:{[s]:+v}})}}
-function delExam(id){if(confirm('حذف هذا الامتحان ودرجاته؟')){S.exams=S.exams.filter(e=>e.id!==id);FB.rm('exams/'+id);render()}}
+function delExam(id){if(confirm('حذف هذا الامتحان ودرجاته؟')){S.exams=S.exams.filter(e=>e.id!==id);FB.rm('exams/'+id);exOpen=null;render()}}
 function showStu(id){const s=S.students.find(x=>x.id===id);if(!s){closeM();return}openId=id;const x=sessions(id);let qs=[],hw=0,hn=0;const days=Object.keys(S.att).sort().reverse().filter(d=>rec(d,id));
  days.forEach(d=>{const r=rec(d,id);hn++;if(r.h)hw++;if(r.s==='p'&&r.q!==undefined&&r.q!==''&&S.qmax[d])qs.push(r.q/S.qmax[d])});
  const avg=qs.length?Math.round(qs.reduce((a,b)=>a+b,0)/qs.length*100)+'٪':'—';
@@ -105,6 +122,12 @@ function showStu(id){const s=S.students.find(x=>x.id===id);if(!s){closeM();retur
  <h2>سجل الأيام (تقدري تعدّلي أي يوم)</h2>${days.map(d=>{const r=rec(d,id);return `<div class="c" style="padding:10px"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">${new Date(d+'T12:00:00').toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'short'})}</b><button class="btn d s" style="padding:4px 10px;font-size:11px" onclick="delRec('${d}','${id}')">حذف</button></div><div class="pa" style="margin:8px 0"><button class="p ${r.s==='p'?'on':''}" onclick="setRec('${d}','${id}',{s:'p'})">حاضر</button><button class="a ${r.s==='a'?'on':''}" onclick="setRec('${d}','${id}',{s:'a'})">غائب</button></div>${subRow(d,id,r,S.qmax[d])}</div>`}).join('')||'<div class="m">لا توجد سجلات بعد</div>'}
  <div style="height:16px"></div><button class="btn d" onclick="delStu('${id}')">حذف الطالب</button></div></div>`;
  const nw=document.querySelector('#md .modal>div');if(nw)nw.scrollTop=st}
+function showRank(mode){mode=mode||'day';const d=selDate(),qm=S.qmax[d];let items;
+ if(mode==='day')items=S.students.map(s=>{const r=rec(d,s.id),q=r&&r.q!==undefined&&r.q!==''?+r.q:null;return{s,v:q,t:q===null?'':nf(q)+(qm?' / '+nf(qm):'')}});
+ else items=S.students.map(s=>{const p=[];Object.keys(S.att).forEach(x=>{const r=rec(x,s.id);if(r&&r.q!==undefined&&r.q!==''&&S.qmax[x]>0)p.push(r.q/S.qmax[x])});const v=p.length?Math.round(p.reduce((a,b)=>a+b,0)/p.length*100):null;return{s,v,t:v===null?'':nf(v)+'٪ ('+nf(p.length)+' كويز)'}});
+ const body=byGroup(items).map(([g,L])=>`<h2>${esc(g)}</h2><div class="c">${ranked(L).map(i=>`<div class="kv"><span><b style="display:inline-block;min-width:30px">${medal(i.r)}</b>${esc(i.s.name)}</span><b>${i.t||'—'}</b></div>`).join('')}</div>`).join('')||'<div class="m">لا يوجد طلاب</div>';
+ const dl=new Date(d+'T12:00:00').toLocaleDateString('ar-EG',{day:'numeric',month:'short'});
+ $('md').innerHTML=`<div class="modal" onclick="if(event.target===this)closeM()"><div><div class="hd"><div style="flex:1"><h1>🏆 ترتيب الكويز</h1><div class="m">داخل كل مجموعة على حدة</div></div><button class="ic" onclick="closeM()">×</button></div><div style="margin-bottom:10px"><button class="fc ${mode==='day'?'on':''}" onclick="showRank('day')">كويز يوم ${dl}</button><button class="fc ${mode==='all'?'on':''}" onclick="showRank('all')">متوسط كل الكويزات</button></div>${body}</div></div>`}
 function editStu(id,f,v){v=v.trim();const s=S.students.find(z=>z.id===id);if(!s)return;if(f==='name'&&!v){render();return}s[f]=v;FB.set('students/'+id,{[f]:v});render()}
 function delRec(d,id){if(!confirm('حذف سجل هذا اليوم؟'))return;if(S.att[d])delete S.att[d][id];FB.upd('att/'+d,{[id]:FB.del()});render()}
 function closeM(){openId=null;$('md').innerHTML=''}
